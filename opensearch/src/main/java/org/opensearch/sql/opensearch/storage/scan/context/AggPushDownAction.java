@@ -120,7 +120,7 @@ public class AggPushDownAction implements OSRequestBuilderAction {
 
       if (composite.sources().size() == 1) {
         if (composite.sources().get(0) instanceof TermsValuesSourceBuilder terms
-            && !terms.missingBucket()) {
+            /*&& !terms.missingBucket()*/) { // FIXME: Needs Optimised Index setting check
           TermsAggregationBuilder termsBuilder =
               buildTermsAggregationBuilder(terms, bucketOrder, composite.size());
           attachSubAggregations(composite.getSubAggregations(), path, termsBuilder);
@@ -153,7 +153,7 @@ public class AggPushDownAction implements OSRequestBuilderAction {
       } else {
         if (composite.sources().stream()
             .allMatch(
-                src -> src instanceof TermsValuesSourceBuilder terms && !terms.missingBucket())) {
+                src -> src instanceof TermsValuesSourceBuilder terms /*&& !terms.missingBucket()*/)) { // FIXME: Needs Optimised Index setting check
           // multi-term agg
           MultiTermsAggregationBuilder multiTermsBuilder =
               buildMultiTermsAggregationBuilder(composite);
@@ -305,25 +305,19 @@ public class AggPushDownAction implements OSRequestBuilderAction {
     return multiTermsBuilder;
   }
 
-  private String getAggregationPath(
-      List<RelFieldCollation> collations,
-      List<String> fieldNames,
-      CompositeAggregationBuilder composite) {
-    String path;
-    AggregationBuilder metric = composite.getSubAggregations().stream().findFirst().orElse(null);
-    if (metric == null) {
-      // count agg optimized, get the path name from field names
-      path = fieldNames.get(collations.get(0).getFieldIndex());
-    } else if (metric instanceof ValuesSourceAggregationBuilder.LeafOnly) {
-      path = metric.getName();
-    } else {
-      // we do not support pushdown sort aggregate measure for nested aggregation
-      throw new OpenSearchRequestBuilder.PushDownUnSupportedException(
-          "Cannot pushdown sort aggregate measure, composite.getSubAggregations() is not a"
-              + " LeafOnly");
+    private String getAggregationPath(
+            List<RelFieldCollation> collations,
+            List<String> fieldNames,
+            CompositeAggregationBuilder composite) {
+        AggregationBuilder metric = composite.getSubAggregations().stream().findFirst().orElse(null);
+        if (metric != null && !(metric instanceof ValuesSourceAggregationBuilder.LeafOnly)) {
+            // do not pushdown sort aggregate measure for nested aggregation, e.g. composite then range
+            throw new OpenSearchRequestBuilder.PushDownUnSupportedException(
+                    "Cannot pushdown sort aggregate measure, composite.getSubAggregations() is not a"
+                            + " LeafOnly");
+        }
+        return fieldNames.get(collations.get(0).getFieldIndex());
     }
-    return path;
-  }
 
   private <T extends AbstractAggregationBuilder<T>> T attachSubAggregations(
       Collection<AggregationBuilder> subAggregations, String path, T aggregationBuilder) {
@@ -331,7 +325,7 @@ public class AggPushDownAction implements OSRequestBuilderAction {
     if (subAggregations.isEmpty()) {
       metricBuilder.addAggregator(AggregationBuilders.count(path).field("_index"));
     } else {
-      metricBuilder.addAggregator(subAggregations.stream().toList().get(0));
+      subAggregations.forEach(metricBuilder::addAggregator);
     }
     aggregationBuilder.subAggregations(metricBuilder);
     return aggregationBuilder;

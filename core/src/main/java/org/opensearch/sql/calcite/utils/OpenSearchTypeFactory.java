@@ -164,22 +164,21 @@ public class OpenSearchTypeFactory extends JavaTypeFactoryImpl {
         case DOUBLE:
           return TYPE_FACTORY.createSqlType(SqlTypeName.DOUBLE, nullable);
         case IP:
-            return TYPE_FACTORY.createSqlType(SqlTypeName.BIGINT, nullable);
-//          return TYPE_FACTORY.createUDT(ExprUDT.EXPR_IP, nullable);
+          return TYPE_FACTORY.createUDT(ExprUDT.EXPR_IP, nullable);
         case STRING:
           return TYPE_FACTORY.createSqlType(SqlTypeName.VARCHAR, nullable);
         case BOOLEAN:
           return TYPE_FACTORY.createSqlType(SqlTypeName.BOOLEAN, nullable);
         case DATE:
             // default making them to BIGINT so that we can bypass these
-//        return TYPE_FACTORY.createUDT(ExprUDT.EXPR_DATE, nullable);
-          return TYPE_FACTORY.createSqlType(SqlTypeName.DATE, nullable);
+        return TYPE_FACTORY.createUDT(ExprUDT.EXPR_DATE, nullable);
+//          return TYPE_FACTORY.createSqlType(SqlTypeName.DATE, nullable);
         case TIME:
-//          return TYPE_FACTORY.createUDT(ExprUDT.EXPR_TIME, nullable);
-            return TYPE_FACTORY.createSqlType(SqlTypeName.BIGINT, nullable);
+          return TYPE_FACTORY.createUDT(ExprUDT.EXPR_TIME, nullable);
+//            return TYPE_FACTORY.createSqlType(SqlTypeName.BIGINT, nullable);
         case TIMESTAMP:
-//          return TYPE_FACTORY.createUDT(ExprUDT.EXPR_TIMESTAMP, nullable);
-          return TYPE_FACTORY.createSqlType(SqlTypeName.TIMESTAMP, 3);
+          return TYPE_FACTORY.createUDT(ExprUDT.EXPR_TIMESTAMP, nullable);
+//          return TYPE_FACTORY.createSqlType(SqlTypeName.TIMESTAMP, 3);
         case ARRAY:
           return TYPE_FACTORY.createArrayType(
               TYPE_FACTORY.createSqlType(SqlTypeName.ANY, nullable), -1);
@@ -198,21 +197,20 @@ public class OpenSearchTypeFactory extends JavaTypeFactoryImpl {
           return TYPE_FACTORY.createSqlType(SqlTypeName.BIGINT, nullable);
 //        return TYPE_FACTORY.createUDT(ExprUDT.EXPR_BINARY, nullable);
       } else if (fieldType.legacyTypeName().equalsIgnoreCase("timestamp")) {
-//        return TYPE_FACTORY.createUDT(ExprUDT.EXPR_TIMESTAMP, nullable);
-        return TYPE_FACTORY.createSqlType(SqlTypeName.TIMESTAMP, 3);
+        return TYPE_FACTORY.createUDT(ExprUDT.EXPR_TIMESTAMP, nullable);
+//        return TYPE_FACTORY.createSqlType(SqlTypeName.TIMESTAMP, 3);
       } else if (fieldType.legacyTypeName().equalsIgnoreCase("date")) {
-//      return TYPE_FACTORY.createUDT(ExprUDT.EXPR_TIME, nullable);
-        return TYPE_FACTORY.createSqlType(SqlTypeName.DATE, nullable);
+      return TYPE_FACTORY.createUDT(ExprUDT.EXPR_TIME, nullable);
+//        return TYPE_FACTORY.createSqlType(SqlTypeName.DATE, nullable);
       } else if (fieldType.legacyTypeName().equalsIgnoreCase("time")) {
-//        return TYPE_FACTORY.createUDT(ExprUDT.EXPR_TIME, nullable);
-          return TYPE_FACTORY.createSqlType(SqlTypeName.BIGINT, nullable);
+        return TYPE_FACTORY.createUDT(ExprUDT.EXPR_TIME, nullable);
+//          return TYPE_FACTORY.createSqlType(SqlTypeName.BIGINT, nullable);
       } else if (fieldType.legacyTypeName().equalsIgnoreCase("geo_point")) {
         return TYPE_FACTORY.createSqlType(SqlTypeName.GEOMETRY, nullable);
       } else if (fieldType.legacyTypeName().equalsIgnoreCase("text")) {
         return TYPE_FACTORY.createSqlType(SqlTypeName.VARCHAR, nullable);
       } else if (fieldType.legacyTypeName().equalsIgnoreCase("ip")) {
-          return TYPE_FACTORY.createSqlType(SqlTypeName.BIGINT, nullable);
-//        return TYPE_FACTORY.createUDT(ExprUDT.EXPR_IP, nullable);
+        return TYPE_FACTORY.createUDT(ExprUDT.EXPR_IP, nullable);
       } else if (fieldType.getOriginalPath().isPresent()) {
         return convertExprTypeToRelDataType(fieldType.getOriginalExprType(), nullable);
       } else {
